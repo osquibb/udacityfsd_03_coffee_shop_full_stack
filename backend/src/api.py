@@ -20,27 +20,46 @@ CORS(app)
 
 ## ROUTES
 '''
-@TODO implement endpoint
+@DONE? implement endpoint
     GET /drinks
         it should be a public endpoint
         it should contain only the drink.short() data representation
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks')
+def get_drinks():
+    drinks = [ drink.short() for drink in Drink.query.all() ]
+    if len(drinks) == 0:
+        abort(404)
 
+    return jsonify({
+        'success': True,
+        'drinks': drinks
+    }), 200
 
 '''
-@TODO implement endpoint
+@DONE? implement endpoint
     GET /drinks-detail
         it should require the 'get:drinks-detail' permission
         it should contain the drink.long() data representation
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@requires_auth('get:drinks-detail')
+@app.route('/drinks-detail')
+def get_drinks_detail():
+    drinks = [ drink.long() for drink in Drink.query.all() ]
+    if len(drinks) == 0:
+        abort(404)
 
+    return jsonify({
+        'success': True,
+        'drinks': drinks
+    }), 200
 
 '''
-@TODO implement endpoint
+@DONE? implement endpoint
     POST /drinks
         it should create a new row in the drinks table
         it should require the 'post:drinks' permission
@@ -48,6 +67,26 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
+@requires_auth('post:drinks')
+@app.route('/drinks', methods=['POST'])
+def create_drink():
+    body = request.get_json()
+    title = body.get('title', None)
+    recipe = body.get('recipe', None)
+
+    try:
+        drink = Drink(title=title, recipe=recipe)
+        drink.insert()
+
+        return jsonify({
+            'success': True,
+            'drinks': drink
+        }), 200
+
+    except:
+        abort(422)
+
+    
 
 
 '''

@@ -48,7 +48,7 @@ def get_drinks_detail():
 def create_drink():
     body = request.get_json()
     title = body.get('title', None)
-    recipe = body.get('recipe', None)
+    recipe = json.dumps(body.get('recipe', None))
 
     try:
         drink = Drink(title=title, recipe=recipe)

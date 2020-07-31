@@ -23,18 +23,20 @@ CORS(app)
 @app.route('/drinks')
 def get_drinks():
     drinks = [ drink.short() for drink in Drink.query.all() ]
+
     if len(drinks) == 0:
         abort(404)
 
     return jsonify({
-        'success': True,
-        'drinks': drinks
-    }), 200
+            'success': True,
+            'drinks': drinks
+        }), 200
 
 @requires_auth('get:drinks-detail')
 @app.route('/drinks-detail')
 def get_drinks_detail():
     drinks = [ drink.long() for drink in Drink.query.all() ]
+
     if len(drinks) == 0:
         abort(404)
 
@@ -56,7 +58,7 @@ def create_drink():
 
         return jsonify({
             'success': True,
-            'drinks': drink
+            'drinks': [drink.long()]
         }), 200
 
     except:
@@ -67,7 +69,7 @@ def create_drink():
 def update_drink(drink_id):
     body = request.get_json()
     title = body.get('title', None)
-    recipe = body.get('recipe', None)
+    recipe = json.dumps(body.get('recipe', None))
     drink = Drink.query.filter(Drink.id == drink_id).one_or_none()
 
     if drink is None:
@@ -80,7 +82,7 @@ def update_drink(drink_id):
 
         return jsonify({
             'success': True,
-            'drinks': drink
+            'drinks': [drink.long()]
         }), 200
 
     except:

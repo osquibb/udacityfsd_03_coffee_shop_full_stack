@@ -127,10 +127,18 @@ def unprocessable(error):
                     "message": "resource not found"
                     }), 404
 
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify({
+        "success": False,
+        "error": 401,
+        "message": 'Unathorized'
+    }), 401
+
 @app.errorhandler(AuthError)
 def unprocessable(error):
     return jsonify({
                     "success": False, 
-                    "error": 401,
-                    "message": "unauthorized"
-                    }), 401
+                    "error": error.status_code,
+                    "message": error.error['description']
+                    }), error.status_code
